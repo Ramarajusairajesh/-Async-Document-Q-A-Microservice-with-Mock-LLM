@@ -3,8 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from database import (
     get_db_session,
-    AsyncSessionLocal,
-)  # Import AsyncSessionLocal for background task
+)
 from schemas import QuestionCreate, QuestionResponse, QuestionStatusResponse
 import services
 import asyncio
@@ -26,13 +25,8 @@ async def submit_question(
     question_data: QuestionCreate,
     db: AsyncSession = Depends(get_db_session),
 ):
-    """
-    Submits a new question related to a specific document.
-    The question will be processed asynchronously by a simulated LLM.
-    Returns the initial status of the question (pending).
-    """
     logger.info(
-        f"Received question for document ID {document_id}: '{question_data.question_text}'"
+        f"Question for document ID {document_id}: '{question_data.question_text}'"
     )
 
     # First, check if the document exists
@@ -46,17 +40,10 @@ async def submit_question(
             detail=f"Document with ID {document_id} not found.",
         )
 
-    # Create the question entry in the database with PENDING status
     question = await services.create_question(db, document_id, question_data)
-
-    # Start the LLM simulation as a background task
-    # Pass AsyncSessionLocal factory to the background task for its own session
     asyncio.create_task(
-        services.simulate_llm_answer(
-            question.id, question.question_text, AsyncSessionLocal
-        )
+        services.simulate_llm_answer(question.id, question.question_text)
     )
-    logger.info(f"LLM simulation task initiated for question ID {question.id}.")
 
     return question
 
@@ -69,11 +56,7 @@ async def submit_question(
 async def get_question_status(
     question_id: int, db: AsyncSession = Depends(get_db_session)
 ):
-    """
-    Retrieves the current status (pending or answered) and the answer
-    for a specific question by its unique ID.
-    """
-    logger.info(f"Received request for status of question ID: {question_id}")
+    logger.info(f"Request for status of question ID: {question_id}")
     question = await services.get_question(db, question_id)
     if not question:
         logger.warning(f"Question with ID {question_id} not found.")
@@ -81,5 +64,4 @@ async def get_question_status(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Question with ID {question_id} not found.",
         )
-    # Return only status and answer as per requirement
     return QuestionStatusResponse(status=question.status, answer=question.answer)

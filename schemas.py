@@ -1,15 +1,10 @@
-# schemas.py
 from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional
 from models import QuestionStatus  # Import the QuestionStatus enum
 
-# --- Document Schemas ---
-
 
 class DocumentBase(BaseModel):
-    """Base schema for document data."""
-
     title: str = Field(
         ..., min_length=1, max_length=255, description="Title of the document."
     )
@@ -21,16 +16,12 @@ class DocumentBase(BaseModel):
 
 
 class DocumentCreate(DocumentBase):
-    """Schema for creating a new document."""
-
     # Inherits title and content from DocumentBase
     # File upload is handled directly in the router using Form/File dependencies
     pass
 
 
 class DocumentResponse(DocumentBase):
-    """Schema for returning a document."""
-
     id: int = Field(..., description="Unique ID of the document.")
     filename: Optional[str] = Field(
         None, description="Original filename of the uploaded document."
@@ -46,30 +37,20 @@ class DocumentResponse(DocumentBase):
     )
 
     class Config:
-        from_attributes = True  # Enable ORM mode for Pydantic v2+
-
-
-# --- Question Schemas ---
+        from_attributes = True
 
 
 class QuestionBase(BaseModel):
-    """Base schema for question data."""
-
     question_text: str = Field(
         ..., min_length=5, description="The question asked about the document."
     )
 
 
 class QuestionCreate(QuestionBase):
-    """Schema for creating a new question."""
-
-    # Inherits question_text from QuestionBase
     pass
 
 
 class QuestionResponse(QuestionBase):
-    """Schema for returning a question's details."""
-
     id: int = Field(..., description="Unique ID of the question.")
     document_id: int = Field(
         ..., description="ID of the document the question is related to."
@@ -92,8 +73,6 @@ class QuestionResponse(QuestionBase):
 
 
 class QuestionStatusResponse(BaseModel):
-    """Schema for returning just the status and answer of a question."""
-
     status: QuestionStatus = Field(
         ..., description="Current status of the question (pending, answered, failed)."
     )

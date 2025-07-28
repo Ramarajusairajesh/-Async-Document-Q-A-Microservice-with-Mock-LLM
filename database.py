@@ -1,27 +1,18 @@
-# database.py
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import declarative_base
 from config import settings
 import logging
+from contextlib import asynccontextmanager
 
 logger = logging.getLogger(__name__)
-
-# Base class for declarative models
 Base = declarative_base()
-
-# Async SQLAlchemy engine
 engine = None
 AsyncSessionLocal = None
 
 
 async def init_db():
-    """
-    Initializes the asynchronous database engine and session maker.
-    This function should be called once at application startup.
-    """
     global engine, AsyncSessionLocal
     try:
-        # Create an async engine using the database URL from settings
         engine = create_async_engine(
             settings.DATABASE_URL, echo=True
         )  # echo=True for SQL logging
@@ -40,10 +31,6 @@ async def init_db():
 
 
 async def close_db():
-    """
-    Closes the database engine.
-    This function should be called once at application shutdown.
-    """
     global engine
     if engine:
         await engine.dispose()
@@ -51,10 +38,19 @@ async def close_db():
 
 
 async def get_db_session():
-    """
-    Dependency function to provide an async database session.
-    This will be used in FastAPI's dependency injection system.
-    """
+    if AsyncSessionLocal is None:
+        logger.error("AsyncSessionLocal is not initialized. Call init_db() first.")
+        raise RuntimeError("Database session not initialized.")
+
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
+
+
+@asynccontextmanager
+async def get_session_for_background_task():
     if AsyncSessionLocal is None:
         logger.error("AsyncSessionLocal is not initialized. Call init_db() first.")
         raise RuntimeError("Database session not initialized.")

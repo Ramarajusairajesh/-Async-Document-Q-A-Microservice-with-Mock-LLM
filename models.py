@@ -1,4 +1,3 @@
-# models.py
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -6,35 +5,24 @@ from database import Base
 import enum
 
 
-# Define an Enum for question status
 class QuestionStatus(str, enum.Enum):
     PENDING = "pending"
     ANSWERED = "answered"
-    FAILED = "failed"  # Added for robustness
+    FAILED = "failed"
+    # Only for the thought of what if the transfer failed
 
 
 class Document(Base):
-    """
-    SQLAlchemy model for storing document metadata and file information.
-    """
-
     __tablename__ = "documents"
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True, nullable=False)
-    # This 'content' field will store the text provided by the user for LLM Q&A.
-    # It is separate from the actual file content.
     content = Column(Text, nullable=False)
-    # New fields to store information about the uploaded file
     filename = Column(String, nullable=True)  # Original name of the uploaded file
-    filepath = Column(
-        String, nullable=True
-    )  # Path where the file is stored on the server
+    filepath = Column(String, nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-
-    # Define a relationship to questions associated with this document
     questions = relationship("Question", back_populates="document")
 
     def __repr__(self):
@@ -42,10 +30,6 @@ class Document(Base):
 
 
 class Question(Base):
-    """
-    SQLAlchemy model for storing questions asked about documents.
-    """
-
     __tablename__ = "questions"
 
     id = Column(Integer, primary_key=True, index=True)
