@@ -1,0 +1,11 @@
+# requirements.txt
+# List of Python packages required for the FastAPI Q&A Microservice
+
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+sqlalchemy==2.0.30
+asyncpg==0.29.0 # PostgreSQL async driver
+psycopg2-binary==2.9.9 # For SQLAlchemy's sync operations (useful for debugging/migrations)
+pydantic==2.7.4
+pydantic-settings==2.3.4
+
