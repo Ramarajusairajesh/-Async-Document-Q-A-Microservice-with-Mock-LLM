@@ -75,7 +75,7 @@ This service acts as the backend for an AI document Q&A application. It handles 
 
         /health route for uptime checks.
 
-🚀 Setup and Running the Application
+# Setup and Running the Application
 Prerequisites
 
     Python 3.10+
@@ -90,20 +90,22 @@ git clone https://github.com/Ramarajusairajesh/-Async-Document-Q-A-Microservice-
 cd -Async-Document-Q-A-Microservice-with-Mock-LLM/
 
 2. Create and Configure .env file
-
-Copy the example environment file and fill in your desired values. For local development with Docker Compose, the defaults should work.
-
-cp .env.example .env
+Create your own env file for better and copy to this directory
+```
+cp {path}/.env ./
+```
 
 You can open .env and modify variables if needed (e.g., database credentials, server port).
 3. Install Python Dependencies (if running locally without Docker)
 
+```
 pip install -r requirements.txt
+```
 
 4. Running with Docker Compose (Recommended)
 
 Docker Compose simplifies running both the FastAPI app and the PostgreSQL database.
-
+```
 docker-compose up --build -d
 
     --build: Builds the Docker images before starting containers.
@@ -113,6 +115,7 @@ docker-compose up --build -d
 Wait a few moments for the database to become healthy and the FastAPI app to start. You can check the logs:
 
 docker-compose logs -f
+```
 
 5. Running Locally (without Docker Compose)
 
@@ -137,24 +140,27 @@ Once the server is running (either via Docker Compose or locally), you can acces
 
 Here are curl examples to test the endpoints:
 1. Health Check
-
+```
 curl -X GET "http://localhost:8000/health" -H "accept: application/json"
-
+```
 2. Upload a Document (POST /documents/)
 
 Important: Create a dummy text file first, e.g., my_document.txt, with some content.
 
 # Create a dummy file for testing (Linux/macOS)
+```
 echo "This is the content of my dummy document file. It's a sample text file." > my_document.txt
-
-# Or on Windows PowerShell:
-# Set-Content -Path my_document.txt -Value "This is the content of my dummy document file. It's a sample text file."
+```
+ Or on Windows PowerShell:
+```
+Set-Content -Path my_document.txt -Value "This is the content of my dummy document file. It's a sample text file."
 
 curl -X POST "http://localhost:8000/documents/" \
 -H "accept: application/json" \
 -F "title=My Uploaded File Document" \
 -F "content=This is the text content for the LLM to process about the uploaded file." \
 -F "file=@./my_document.txt"
+```
 
     Expected Response: A JSON object representing the created document, including its id, filename, and file_path. Make note of the id.
 
@@ -170,24 +176,26 @@ curl -X GET "http://localhost:8000/documents/[DOCUMENT_ID]" \
 4. Submit a Question (POST /documents/{id}/question)
 
 Replace [DOCUMENT_ID] with the ID of the document you want to ask about.
-
+```
 curl -X POST "http://localhost:8000/documents/[DOCUMENT_ID]/question" \
 -H "accept: application/json" \
 -H "Content-Type: application/json" \
 -d '{
   "question_text": "What is the main topic of the LLM content for this document?"
 }'
+```
 
     Expected Response: A JSON object representing the created question, including its id and status: "pending". Make note of the id. The HTTP status code will be 202 Accepted.
 
 5. Retrieve Question Status and Answer (GET /questions/{id})
 
 Replace [QUESTION_ID] with the ID obtained from the previous step.
-
+```
 curl -X GET "http://localhost:8000/questions/[QUESTION_ID]" \
 -H "accept: application/json"
 
-    Expected Response (immediately after submission): {"status": "pending", "answer": null}
+Expected Response (immediately after submission): {"status": "pending", "answer": null}
+```
 
     Expected Response (after ~5 seconds): {"status": "answered", "answer": "This is a generated answer to your question: 'What is the main topic of the LLM content for this document?'"}"
 
