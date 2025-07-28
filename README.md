@@ -1,7 +1,7 @@
 AI Document Q&A Microservice
 
 This project implements a Python backend microservice using FastAPI and PostgreSQL to manage documents and answer questions about them using a simulated LLM.
-🎯 Objective
+## [*]Objective
 
 To build a robust backend service that allows users to:
 
@@ -13,15 +13,16 @@ To build a robust backend service that allows users to:
 
     Query the status and response of a question.
 
-📚 Use Case Description
+## [*] Use Case Description
 
 This service acts as the backend for an AI document Q&A application. It handles document storage (both the physical file and its metadata), question submission, and simulates a Large Language Model (LLM) processing answers in the background. This setup mimics real-world LLM-powered products, focusing on core backend skills, Python design, and asynchronous processing.
-🧰 Technical Requirements Met
+
+## [*] Technical Requirements Met
 
     Core Python & Backend:
 
         FastAPI is used for building the API.
-
+        
         Code is structured modularly into routers, services, schemas, and models.
 
         Clean coding practices and type annotations are followed.
@@ -85,9 +86,8 @@ Prerequisites
 
 1. Clone the Repository (if applicable)
 
-# If this were a real repository
-# git clone <your-repo-url>
-# cd ai-qna-microservice
+git clone https://github.com/Ramarajusairajesh/-Async-Document-Q-A-Microservice-with-Mock-LLM/
+cd -Async-Document-Q-A-Microservice-with-Mock-LLM/
 
 2. Create and Configure .env file
 
@@ -131,7 +131,7 @@ This requires you to have PostgreSQL installed and running on your machine, and 
 
     python main.py
 
-🧪 Testing the Endpoints
+## [*]Testing the Endpoints
 
 Once the server is running (either via Docker Compose or locally), you can access the interactive API documentation at http://localhost:8000/docs (or http://0.0.0.0:8000/docs depending on your host configuration).
 
@@ -193,17 +193,13 @@ curl -X GET "http://localhost:8000/questions/[QUESTION_ID]" \
 
     You might need to make this request a few times until the status changes from pending to answered.
 
-🛑 Shutting Down
+## [*] Shutting Down
 
 To stop the Docker Compose services:
 
 docker-compose down
 
 To stop the locally running FastAPI app, press Ctrl+C in your terminal.
-🧹 Cleaning Up (Docker)
-
 To remove the Docker volumes (which store database data) and images:
 
-docker-compose down
-
-
+docker-compose down --volumes
