@@ -13,8 +13,10 @@ class DocumentBase(BaseModel):
     title: str = Field(
         ..., min_length=1, max_length=255, description="Title of the document."
     )
+    # This 'content' field is for the LLM processing, provided by the user.
+    # It's distinct from the uploaded file's content.
     content: str = Field(
-        ..., min_length=10, description="Full text content of the document."
+        ..., min_length=10, description="Full text content of the document for LLM Q&A."
     )
 
 
@@ -22,6 +24,7 @@ class DocumentCreate(DocumentBase):
     """Schema for creating a new document."""
 
     # Inherits title and content from DocumentBase
+    # File upload is handled directly in the router using Form/File dependencies
     pass
 
 
@@ -29,6 +32,12 @@ class DocumentResponse(DocumentBase):
     """Schema for returning a document."""
 
     id: int = Field(..., description="Unique ID of the document.")
+    filename: Optional[str] = Field(
+        None, description="Original filename of the uploaded document."
+    )
+    filepath: Optional[str] = Field(
+        None, description="Server path where the document file is stored."
+    )
     created_at: datetime = Field(
         ..., description="Timestamp when the document was created."
     )

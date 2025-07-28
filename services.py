@@ -1,35 +1,46 @@
 # services.py
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    async_sessionmaker,
-)  # Added async_sessionmaker import
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.future import select
 from models import Document, Question, QuestionStatus
 from schemas import DocumentCreate, QuestionCreate
 import asyncio
 import logging
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
 # --- Document Services ---
 
 
-async def create_document(db: AsyncSession, doc_data: DocumentCreate) -> Document:
+async def create_document(
+    db: AsyncSession,
+    title: str,
+    content: str,
+    filename: Optional[str] = None,
+    filepath: Optional[str] = None,
+) -> Document:
     """
-    Creates a new document in the database.
+    Creates a new document in the database, including file metadata.
 
     Args:
         db (AsyncSession): The database session.
-        doc_data (DocumentCreate): Pydantic schema containing document title and content.
+        title (str): Title of the document.
+        content (str): Text content for LLM Q&A.
+        filename (Optional[str]): Original filename of the uploaded file.
+        file_path (Optional[str]): Server path where the file is stored.
 
     Returns:
         Document: The newly created Document ORM object.
     """
-    new_document = Document(title=doc_data.title, content=doc_data.content)
+    new_document = Document(
+        title=title, content=content, filename=filename, filepath=filepath
+    )
     db.add(new_document)
     await db.commit()
     await db.refresh(new_document)
-    logger.info(f"Document created: ID {new_document.id}, Title '{new_document.title}'")
+    logger.info(
+        f"Document created: ID {new_document.id}, Title '{new_document.title}', File '{new_document.filename}'"
+    )
     return new_document
 
 
@@ -158,7 +169,7 @@ async def simulate_llm_answer(
                 db, question_id, QuestionStatus.ANSWERED, dummy_answer
             )
             logger.info(
-                f"LLM simulation complete for question ID {question_id}. Answered."
+                f"LLM simulation complete for question ID {question.id}. Answered."
             )
 
     except Exception as e:

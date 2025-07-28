@@ -1,34 +1,39 @@
+# docker-compose.yml for the FastAPI Q&A Microservice
+
 version: "3.8"
 
 services:
+  # PostgreSQL database service
   db:
-    image: postgres:14-alpine
-    restart: always
+    image: postgres:14-alpine # Use a lightweight PostgreSQL image
+    restart: always # Always restart the container if it stops
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
-      POSTGRES_DB: ${POSTGRES_DB:-qna_db}
+      POSTGRES_USER: ${POSTGRES_USER:-user} # Default user 'user' if not set in .env
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password} # Default password 'password'
+      POSTGRES_DB: ${POSTGRES_DB:-qna_db} # Default database 'qna_db'
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data # Persist database data
     ports:
-      - "5432:5432"
-    healthcheck:
+      - "5432:5432" # Expose PostgreSQL port to host (optional, for direct access)
+    healthcheck: # Health check to ensure DB is ready before app starts
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 5s
       retries: 5
 
+  # FastAPI application service
   app:
-    build: .
+    build: . # Build the image from the Dockerfile in the current directory
     restart: always
     ports:
-      - "8000:8000"
+      - "8000:8000" # Map container port 8000 to host port 8000
     environment:
+      # Pass environment variables to the app container
       DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://user:password@db:5432/qna_db}
       POSTGRES_USER: ${POSTGRES_USER:-user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
       POSTGRES_DB: ${POSTGRES_DB:-qna_db}
-      POSTGRES_HOST: db
+      POSTGRES_HOST: db # Use the service name 'db' for the database host
       POSTGRES_PORT: 5432
       SERVER_HOST: 0.0.0.0
       SERVER_PORT: 8000
@@ -36,10 +41,13 @@ services:
       SECRET_KEY: ${SECRET_KEY:-supersecretkey}
     depends_on:
       db:
-        condition: service_healthy
+        condition: service_healthy # Ensure DB is healthy before starting the app
     volumes:
-      - .:/app
+      - .:/app # Mount the current directory into the container for live code changes (dev)
+    # Command to run the app (overrides Dockerfile CMD for development with reload)
+    # In production, you might use the Dockerfile CMD directly or a Gunicorn setup
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
+# Define named volumes for data persistence
 volumes:
   db_data:

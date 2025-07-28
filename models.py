@@ -15,15 +15,22 @@ class QuestionStatus(str, enum.Enum):
 
 class Document(Base):
     """
-    SQLAlchemy model for storing document metadata.
+    SQLAlchemy model for storing document metadata and file information.
     """
 
     __tablename__ = "documents"
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True, nullable=False)
-    # Content is stored as Text, assuming it's the textual content for LLM processing
+    # This 'content' field will store the text provided by the user for LLM Q&A.
+    # It is separate from the actual file content.
     content = Column(Text, nullable=False)
+    # New fields to store information about the uploaded file
+    filename = Column(String, nullable=True)  # Original name of the uploaded file
+    filepath = Column(
+        String, nullable=True
+    )  # Path where the file is stored on the server
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -31,7 +38,7 @@ class Document(Base):
     questions = relationship("Question", back_populates="document")
 
     def __repr__(self):
-        return f"<Document(id={self.id}, title='{self.title}')>"
+        return f"<Document(id={self.id}, title='{self.title}', filename='{self.filename}')>"
 
 
 class Question(Base):

@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     """
 
     # Model configuration: allows loading settings from a .env file
-    # model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     # Database settings
     DATABASE_URL: str = "postgresql+asyncpg://user:password@db:5432/qna_db"
