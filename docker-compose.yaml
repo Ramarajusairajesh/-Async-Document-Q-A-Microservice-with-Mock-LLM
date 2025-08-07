@@ -1,5 +1,3 @@
-# docker-compose.yml for the FastAPI Q&A Microservice
-
 version: "3.8"
 
 services:
