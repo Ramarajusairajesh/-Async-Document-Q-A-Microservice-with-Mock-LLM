@@ -1,6 +1,3 @@
-# Dockerfile for the FastAPI Q&A Microservice
-
-# Use a lightweight Python base image
 FROM python:3.10-slim-buster
 
 # Set the working directory inside the container
